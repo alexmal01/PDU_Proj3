@@ -87,9 +87,7 @@ pytanie1<-function(Posts){
 }
 
 
-pytanie1(ApplePosts)
-pytanie1(WindowsPhonePosts)
-pytanie1(AndroidPosts)
+
 
 
 
@@ -103,20 +101,78 @@ pytanie2<-function(Users){
 
 
 
-pytanie2(ApplePosts)
-pytanie2(WindowsPhonePosts)
-pytanie2(AndroidPosts)
+
 
 
 
 pytanie3<-function(Users, Posts, Comments){
   Users<- rename(Users, UserId = Id, AccCreatDate = CreationDate)
   Posts<- rename(Posts, PostId = Id, PostCreatDate = CreationDate)
-  wyn1 <- Users %>% left_join(Posts, by = c("UserId" = "OwnerUserId")) %>% select(UserId, PostCreatDate, PostId) %>% mutate(date = substr(PostCreatDate, 1, 10)) %>% mutate(date2 = as.Date(date, "%Y-%m-%d")) %>%
-    mutate(month = format(date2, "%m"))%>% mutate(year = format(date2, "%Y")) %>%  mutate(PostId2 = as.integer(PostId)) %>% select(UserId, month, year, PostId2)  %>% as.data.frame() %>% arrange(PostId2, year, month) 
+  Comments<- rename(Comments, CommentId = Id, CommentCreatDate = CreationDate)
   
-  wyn1 
+  
+  
+  wyn1 <- Users %>% left_join(Posts, by = c("UserId" = "OwnerUserId")) %>% select(UserId, PostCreatDate, PostId) %>% mutate(date = substr(PostCreatDate, 1, 10)) %>% mutate(date2 = as.Date(date, "%Y-%m-%d")) %>% mutate(month = format(date2, "%m"))%>% mutate(year = format(date2, "%Y")) %>%  mutate(PostId2 = as.integer(PostId)) %>% select( month, year, PostId2)  %>% as.data.frame() %>% arrange(PostId2, year, month) %>% group_by(month, year)%>% tally()%>% mutate(monthYear = paste(month, year, sep = " ")) %>% as.data.frame() 
+
+  wyn2 <- Users %>% left_join(Comments, by = c("UserId" = "UserId")) %>% select(UserId, CommentCreatDate, CommentId) %>% mutate(date = substr(CommentCreatDate, 1, 10)) %>% mutate(date2 = as.Date(date, "%Y-%m-%d")) %>% mutate(month = format(date2, "%m"))%>% mutate(year = format(date2, "%Y")) %>%  mutate(CommentId2 = as.integer(CommentId)) %>% select( month, year, CommentId2)  %>% as.data.frame() %>% arrange(CommentId2, year, month)%>% group_by(month, year)%>% tally()%>% mutate(monthYear = paste(month, year, sep = " "))%>% as.data.frame()
+  
+  
+  wyn3<- wyn1 %>% full_join(wyn2, by = c("monthYear" = "monthYear"))
+  
+  temp <- is.na(wyn3$n.y)
+  wyn3$n.y[temp] <- 0
+  
+  temp <- is.na(wyn3$n.x)
+  wyn3$n.x[temp] <- 0
+  wyn3 <- wyn3 %>% mutate (aktywnosc = (wyn3$n.x + wyn3$n.y)) %>% select (monthYear, aktywnosc)
+  
+
+  
+  
+  head(wyn3, length(wyn3$aktywnosc)-1)
 
 }
 
-pytanie3(WindowsPhoneUsers, WindowsPhonePosts, WindowsPhoneComments)
+
+pytanie4 <-function(Users){
+  
+  temp <- is.na(Users$UpVotes)
+  Users<-Users[!temp, ]
+  wyn1 <- Users %>% select(Id, CreationDate, UpVotes) %>% mutate(date = substr(CreationDate, 1, 10)) %>% mutate(date2 = as.Date(date, "%Y-%m-%d")) %>% mutate(month = format(date2, "%m"))%>% mutate(year = format(date2, "%Y")) %>% select( month, year, Id, UpVotes)  %>% group_by(month, year, UpVotes)%>% tally()%>% as.data.frame() 
+  
+  print (wyn1)
+ 
+  
+  
+}
+
+
+
+
+
+
+
+write.csv(pytanie1(ApplePosts), file = "ApplePyt1.csv", row.names = FALSE)
+write.csv(pytanie1(WindowsPhonePosts), file = "WindowsPhonePyt1.csv", row.names = FALSE)
+write.csv(pytanie1(AndroidPosts), file = "AndroidPyt1.csv", row.names = FALSE)
+
+
+write.csv(pytanie2(ApplePosts), file = "ApplePyt2.csv", row.names = FALSE)
+write.csv(pytanie2(WindowsPhonePosts), file = "WindowsPhonePyt2.csv", row.names = FALSE)
+write.csv(pytanie2(AndroidPosts), file = "AndroidPyt2.csv", row.names = FALSE)
+
+
+write.csv(pytanie3(WindowsPhoneUsers, WindowsPhonePosts, WindowsPhoneComments), file = "WindowsPhonePyt3.csv", row.names = FALSE)
+write.csv(pytanie3(AppleUsers, ApplePosts, AppleComments), file = "ApplePyt3.csv", row.names = FALSE)
+write.csv(pytanie3(AndroidUsers, AndroidPosts, AndroidComments), file = "AndroidPyt3.csv", row.names = FALSE)
+
+
+write.csv(pytanie4(WindowsPhoneUsers), file = "WindowsPhonePyt4.csv", row.names = FALSE)
+write.csv(pytanie4(AppleUsers), file = "ApplePyt4.csv", row.names = FALSE)
+write.csv(pytanie4(AndroidUsers), file = "AndroidPyt4.csv", row.names = FALSE)
+
+
+
+
+
+
