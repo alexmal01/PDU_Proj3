@@ -138,7 +138,7 @@ pytanie4 <-function(Users){
   
   temp <- is.na(Users$UpVotes)
   Users<-Users[!temp, ]
-  wyn1 <- Users %>% select(Id, CreationDate, UpVotes) %>% mutate(date = substr(CreationDate, 1, 10)) %>% mutate(date2 = as.Date(date, "%Y-%m-%d")) %>% mutate(month = format(date2, "%m"))%>% mutate(year = format(date2, "%Y")) %>% select( month, year, Id, UpVotes)  %>% group_by(month, year, UpVotes)%>% tally()%>% as.data.frame() 
+  wyn1 <- Users %>% select(Id, CreationDate, UpVotes, Reputation) %>% mutate(date = substr(CreationDate, 1, 10)) %>% mutate(date2 = as.Date(date, "%Y-%m-%d")) %>% mutate(month = format(date2, "%m"))%>% mutate(year = format(date2, "%Y")) %>% select( month, year, Id, UpVotes, Reputation) 
   
   print (wyn1)
  
@@ -147,7 +147,7 @@ pytanie4 <-function(Users){
 }
 
 
-
+pytanie4(AndroidUsers)
 
 
 
